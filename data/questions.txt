@@ -1,0 +1,97 @@
+Question: How many paradigms do we have in Real-Time programming languages? (Recount them in your mind)
+1. 1
+2. 2
+3. 3
+4. 4
+Right_Answer: 3
+Difficulty: 1
+
+
+Question: What type of verification do we use when proofing Ada-programs?
+1. Deductive Proving 
+2. Model Checking
+3. Martins triangle
+4. Abstract Interpretation
+Right_Answer: 1
+Difficulty: 2
+
+
+Question: What are the properties of deductive verification?
+1. No missed bugs, automatic
+2. No false alarms, no missed bugs
+3. No false alarms, automatic
+4. Automatic, few missed bugs
+Right_Answer: 2
+Difficulty: 3
+
+
+Question: Does Ada implement garbage collection?
+1. Yes
+2. No
+3. Depends on the compiler used
+4. There is no need for garbage collection
+Right_Answer: 3
+Difficulty: 2
+
+
+Question: How does Ada implement pointers?
+1. Not at all
+2. Same as in C, use ptr* with arithmetics
+3. They are called access type and do have arithmetics
+4. They are called access type and do not have arithmetics
+Right_Answer: 4
+Difficulty: 2
+
+
+Question: What was the name of the tutor?
+1. Prof. Chakraborty
+2. Steve Jobs
+3. Ada Lovelace
+4. Martin Becker
+Right_Answer: 4
+Difficulty: 5
+
+
+Question: Which of these languages has not been discussed in this course?
+1. Ada
+2. Haskell
+3. Lustre
+4. Esterel
+Right_Answer: 2
+Difficulty: 1
+
+
+Question: Which of these functions/types is not part of the real-time annex of Ada?
+1. Clock
+2. Time_span
+3. Delay
+4. Nanoseconds
+Right_Answer: 3
+Difficulty: 4
+
+
+Question: Which of these keywords is not a feature of Ada?
+1. struct
+2. function
+3. procedure
+4. package 
+Right_Answer: 1
+Difficulty: 2
+
+
+Question: How to treat cycles in Estrel?
+1. We should avoid cycles at any cost
+2. Distinguish good and bad cycles
+3. There can be no cycles
+4. An Esterel program needs at least one cycle to execute
+Right_Answer: 2
+Difficulty: 3
+
+
+Question: How many points will we get for this program?
+1. Full points
+2. 70
+3. 3.14159265
+4. ECTS or payback points?
+Right_Answer: 1
+Difficulty: 5

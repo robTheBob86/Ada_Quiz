@@ -1,0 +1,314 @@
+with Ada.Text_IO; use Ada.Text_IO;
+with Gtk.Box;
+with Gtk.Label;
+with Gtk.Main;
+with Gtk.Window;
+with Gtk.Button;
+with question_if;
+with Gtk.Handlers;
+
+with Ada.Text_IO;
+
+with Players; use Players;
+with Question_IF; use Question_IF;
+with Ada.Real_Time; use Ada.Real_Time;
+
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with ada.Containers.vectors;
+
+package body GUI_IF is
+
+
+     ---------------------- Define and intantiate the overall game status ---------------------------
+
+      protected type Game_Status_Type is
+         -- Most useful in multi-player mode
+         entry Set_Game_Over(not_game_over: Boolean; player: Player_Type);
+         function Get_Game_Over return Boolean;
+
+         procedure Set_Time_Out(player: Player_Type);
+         function Get_Time_Out return Boolean;
+
+         procedure Set_Question_Answered(qa: Boolean);
+         function Get_Question_Answered return Boolean;
+
+         procedure Set_Answer(ans: Integer);
+         function Get_Answer return Integer;
+
+      private
+         question_answered: Boolean := True;
+         game_over: Boolean := False;
+         time_out: Boolean := False;
+         right_answer : Integer;
+      end Game_Status_Type;
+
+
+
+      protected body Game_Status_Type is
+         entry Set_Game_Over(not_game_over: Boolean; player: Player_Type) when not game_over is
+         begin
+            if not not_game_over then
+               game_over := True;
+               Ada.Text_IO.Put_Line("Player " & To_String(player.name) & " has answered wrong. GAME OVER");
+            end if;
+         end Set_Game_Over;
+
+         function Get_Game_Over return Boolean is
+         begin
+            return game_over;
+         end Get_Game_Over;
+
+         procedure Set_Time_Out(player: Player_Type) is
+         begin
+            Ada.Text_IO.Put_Line("Player " & To_String(player.name) & " has run out of time. GAME OVER");
+            time_out := True;
+         end Set_Time_Out;
+
+         function Get_Time_Out return Boolean is
+         begin
+            return time_out;
+         end Get_Time_Out;
+
+         procedure Set_Question_Answered(qa: Boolean) is
+         begin
+            question_answered := qa;
+         end Set_Question_Answered;
+
+         function Get_Question_Answered return Boolean is
+         begin
+           return question_answered;
+         end Get_Question_Answered;
+
+         procedure Set_Answer(ans: Integer) is
+         begin
+            right_answer := ans;
+         end Set_Answer;
+
+         function Get_Answer return Integer is
+         begin
+            return right_answer;
+         end Get_Answer;
+
+
+   end Game_Status_Type;
+
+   -- initialize the just-declared status type
+   status: Game_Status_Type;
+
+
+
+   task type Single_Player_Task is
+      entry Start;
+      entry answer(ans: Integer);
+   end Single_Player_Task;
+
+
+
+
+
+   --------------------------------------- The Single Player Task ---------------------------------------
+   --This task runs concurrently to the GUI and interacts with it
+   task body Single_Player_Task is
+      -- Please note: It is actually an overkill, ahving a task in the single player task
+      -- again, we do not need it in this moment. However, we can utilize the code like
+      -- this for a multi-player mode, where we just intantiate two tasks like this,
+      -- one for each player. Hence, this design is for upward compatibility rather than
+      -- for solving the single-player problem
+
+         ------------------------ Define and instantiate the task  ---------------------------
+
+      file: constant String := "data/questions.txt";
+      player1: Player_Type;
+      started : Boolean := False;
+
+   begin
+
+      accept Start do
+         -- this is kind of like the main procedure, serving the player with the questions
+         delay(2.0);
+
+         parse_questions(To_Unbounded_String(file));
+         player1 := init_player;
+         Ada.Text_IO.Put_Line("Welcome " & To_String(player1.name));
+      end Start;
+
+
+     while (current_question_index<= Integer(Question_Vectors.Length(all_questions))) loop
+
+         accept answer(ans: Integer) do
+            if (all_questions(current_question_index).right_answer = ans) then
+               player1.score := player1.score + 1;
+               Ada.Text_IO.Put_Line("The answer was correct. You current score is: " & Natural'Image(player1.score));
+            else
+               status.Set_Game_Over(false, player1);
+               Ada.Text_IO.Put_Line("Wrong answer. GAME OVER");
+            end if;
+            status.Set_Question_Answered(True);
+         end answer;
+
+      end loop;
+
+      if not status.Get_Game_Over and not status.Get_Time_Out then
+         Ada.Text_IO.Put_Line("Congratulations, you've mastered all questions!");
+      end if;
+
+
+   end Single_Player_Task;
+
+
+   task type Timer_Task is
+      entry start_timer;
+      entry reset_time;
+   end Timer_Task;
+
+
+   task body Timer_Task is
+      start_time: Time;
+   begin
+     loop
+         select
+            accept start_timer is
+               start_time := Clock;
+            end start_timer;
+         or
+            accept reset_time do
+               start_time := Clock;
+            end reset_time;
+         end select;
+
+         if Clock - start_time >= 60.0 then
+            -- logic to set buttons, may push that into a function nested in the GUI function
+            Question_Label.Set_Label("Time out. GAME OVER");
+            -- TODO: disable buttons
+         end if;
+     end loop;
+
+   end Timer_Task;
+
+   -- instantiate the single-player-mode
+   sp_mode : Single_Player_Task;
+   timer: Timer_Task;
+
+  --------------------------------------- Button Handlers ---------------------------------------
+  procedure handler_of_button1(Button : access Gtk_Button_Record'Class) is
+   begin
+      answer(Button, 1);
+   end;
+     procedure handler_of_button2(Button : access Gtk_Button_Record'Class) is
+   begin
+     answer(Button, 2);
+   end;
+     procedure handler_of_button3(Button : access Gtk_Button_Record'Class) is
+   begin
+      answer(Button, 3);
+   end;
+     procedure handler_of_button4(Button : access Gtk_Button_Record'Class) is
+   begin
+      answer(Button, 4);
+   end;
+
+   procedure answer(Button : access Gtk_Button_Record'Class; ans : Integer) is --this function will be huge, main work is done here
+   begin
+      sp_mode.answer(ans); --entry call
+<<<<<<< HEAD
+      if (status.Get_Game_Over)or(current_question_index> Integer(Question_Vectors.Length(all_questions))) then
+      Question_Label.Set_Label("Game over");
+      Buttons(1).Set_Sensitive(false);
+      Buttons(2).Set_Sensitive(false);
+      Buttons(3).Set_Sensitive(false);
+      Buttons(4).set_sensitive(false);
+
+      else
+      current_question_index := current_question_index + 1;
+=======
+      timer.start_timer;
+
+>>>>>>> 89df3a20317d4e43b58cba5ce1a1ad2e73fa4330
+      Question_Label.Set_Label(To_String(all_questions(current_question_index).question));
+      Buttons(1).Set_Label(To_String(all_questions(current_question_index).answers(1)));
+      Buttons(2).Set_Label(To_String(all_questions(current_question_index).answers(2)));
+      Buttons(3).Set_Label(To_String(all_questions(current_question_index).answers(3)));
+      Buttons(4).Set_Label(To_String(all_questions(current_question_index).answers(4)));
+
+      status.Set_Question_Answered(False);
+         end if ;
+   end;
+
+   procedure handler_of_delete_event(Win : access Gtk_Window_Record'Class) is
+   begin
+      Gtk.Main.Main_quit;
+   end;
+   procedure handler_of_destroy_event(Win : access Gtk_Window_Record'Class) is
+   begin
+      Gtk.Main.Main_quit;
+   end;
+
+
+
+   function Start_Question_screen return Gtk_Window is
+
+
+   --------------------------------------- Begin ---------------------------------------
+   begin
+
+      --  Initialize GtkAda.
+      Ada.Text_IO.Put_Line("Test test");
+      sp_mode.Start;
+
+      Gtk.Main.Init;
+      --  Create a window with a size of 400x400
+      Gtk_New (Win);
+      Win.Set_Default_Size(400, 400);
+
+      Gtk_New_Vbox (Box);
+      Win.Add (Box);
+
+      --  Add a label
+      Gtk_New (Question_Label, "Question");
+      Question_Label.Set_Line_Wrap(True);
+      Box.Add(Question_Label);
+      Gtk_New_Vbox(Answers);
+      Box.Add (Answers);
+      for i in 1..4 loop
+         GTK_new(Buttons(i));
+         Answers.Add(Buttons(i));
+         Gtk_New(Answer_labels(i), Integer'Image(i));
+         Answer_labels(i).Set_Line_Wrap(True);
+         Buttons(i).Add(Answer_labels(i));
+
+      end loop;
+
+
+      Buttons(1).On_Clicked(handler_of_button1'Access);
+      Buttons(2).On_Clicked(handler_of_button2'Access);
+      Buttons(3).On_Clicked(handler_of_button3'Access);
+      Buttons(4).On_Clicked(handler_of_button4'Access);
+      Win.On_Delete_Event(handler_of_destroy_event'Access);
+      Win.On_Delete_Event(handler_of_delete_event'Access);
+
+      Question_Label.Set_Label(To_String(all_questions(current_question_index).question));
+      Buttons(1).Set_Label(To_String(all_questions(current_question_index).answers(1)));
+      Buttons(2).Set_Label(To_String(all_questions(current_question_index).answers(2)));
+      Buttons(3).Set_Label(To_String(all_questions(current_question_index).answers(3)));
+      Buttons(4).Set_Label(To_String(all_questions(current_question_index).answers(4)));
+<<<<<<< HEAD
+
+=======
+      current_question_index := 1;
+      timer.start_timer;
+>>>>>>> 89df3a20317d4e43b58cba5ce1a1ad2e73fa4330
+
+
+      --  Show the window
+      Win.Show_All;
+      --  Start the Gtk+ main loop
+      Gtk.Main.Main; --only left by using the Gtk.Main.Main_Quit function. Until then: Start everything with button press handles.
+
+      Put_Line("Thanks for playing");
+      return Win;
+   end Start_question_screen;
+
+
+
+
+end GUI_IF;

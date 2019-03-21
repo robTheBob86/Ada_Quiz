@@ -4,8 +4,8 @@
 
 ### Authors
 January 2019, Technical University of Munich
-- A. S. 
-- Robert Baumgartner
+- ALSchauer: https://github.com/ALSchauer/
+- robTheBob86: https://github.com/robTheBob86/
 
 
 ### Introduction

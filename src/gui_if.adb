@@ -90,6 +90,7 @@ package body GUI_IF is
       --  Create a window with a size of 800 x 600
       Gtk_New (Win);
       Win.Set_Default_Size (800, 600);
+      Win.Set_Title ("Ada Quiz");
       --  single box to organize content vertically
       Gtk_New_Vbox (Box);
       Win.Add (Box);

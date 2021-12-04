@@ -1,4 +1,4 @@
-with "..\..\..\..\..\GtkAda\lib\gnat\gtkada.gpr";
+with "gtkada";
 
 project Quiz is
 
@@ -7,18 +7,12 @@ project Quiz is
    for Main use ("main.adb");
    type Build_Kind is
       ("static", "relocatable");
-   Library_Type : Build_Kind := external ("LIBRARY_TYPE");
+   Library_Type : Build_Kind := external ("LIBRARY_TYPE", "relocatable");
 
    package Compiler is
 
-      case Library_Type is
+      for Default_Switches ("ada") use ("-gnatyyy", "-gnatwa.n", "-gnatf", "-gnato", "-gnata", "-gnatVa");
 
-         when "static" =>
-            for Default_Switches ("ada") use ("-gnatyyy", "-gnatwa.n", "-gnatf", "-gnato", "-gnata", "-gnatVa");
-
-         when "relocatable" =>
-            for Default_Switches ("ada") use ("-gnatyy -gnatwa.n -gnatf -gnato -gnata -gnatVa");
-      end case;
    end Compiler;
 
    package Linker is

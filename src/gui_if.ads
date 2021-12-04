@@ -1,6 +1,7 @@
 with Gtk.Button; use Gtk.Button;
-with Gtk.Window; use Gtk.Window; with Gtk.Box;         use Gtk.Box;
-with Gtk.Label;       use Gtk.Label;
+with Gtk.Window; use Gtk.Window;
+with Gtk.Box;    use Gtk.Box;
+with Gtk.Label;  use Gtk.Label;
 with Gtk.Widget; use Gtk.Widget;
 
 use Gtk.Button;
@@ -18,10 +19,10 @@ private
    procedure handler_of_destroy_event (Win : access Gtk_Widget_Record'Class);
 
 
-   Win          : Gtk_Window;
-   Question_Label       : Gtk_Label;
-    Box          : Gtk_Vbox; --outermost box, because window can only hold one object. Vbox, because question should later be above answers.
-    Answers      : Gtk_Vbox; --box for all 4 answers
-   Buttons : array (1 .. 4) of Gtk_Button;
-   Answer_labels : array (1 .. 4) of Gtk_Label;
+   Win            : Gtk_Window;
+   Question_Label : Gtk_Label;
+   Box            : Gtk_Vbox; --outermost box, because window can only hold one object. Vbox, because question should later be above answers.
+   Answers        : Gtk_Vbox; --box for all 4 answers
+   Buttons        : array (1 .. 4) of Gtk_Button;
+   Answer_labels  : array (1 .. 4) of Gtk_Label;
 end GUI_IF;
